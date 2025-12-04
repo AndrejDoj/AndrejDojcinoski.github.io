@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Book Reservation - Welcome and choose a Book</title>
+    <style type="text/css">
+        body {
+            width: 800px;
+            margin: auto;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            margin-top: 20px;
+        }
+        .book-option {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .book-option:hover {
+            background-color: #f5f5f5;
+        }
+        .inline-form {
+            display: inline-block;
+        }
+        .filter-section {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Welcome to our Book Reservation App</h1>
+</header>
+<main>
+    <h2>Recently viewed:</h2>
+    <ul>
+        <li th:each="lastViewedBook : ${lastViewedBooks}" th:text="${lastViewedBook}"></li>
+    </ul>
+
+    <!-- Advanced Filter Section -->
+    <div class="filter-section">
+        <h2>Advanced Filter:</h2>
+        <form action="/books" method="GET">
+            <!-- Title search -->
+            <label>Book Title:</label>
+            <input type="text" name="title"
+                   th:value="${title != null ? title : ''}"
+                   placeholder="Search by title">
+            <br />
+
+            <!-- Author dropdown -->
+            <label>Author:</label>
+            <select name="authorId">
+                <option value="">All authors</option>
+                <option th:each="author : ${authors}"
+                        th:value="${author.getId()}"
+                        th:text="${author.getName()} + ' ' + ${author.getSurname()}"
+                        th:selected="${authorId == author.getId()}">
+                </option>
+            </select>
+            <br />
+
+            <!-- Genre dropdown -->
+            <label>Genre:</label>
+            <select name="genreId">
+                <option value="">All genres</option>
+                <option th:each="genre : ${genres}"
+                        th:value="${genre.getId()}"
+                        th:text="${genre.getName()}"
+                        th:selected="${genreId == genre.getId()}">
+                </option>
+            </select>
+            <br />
+
+            <!-- Minimum rating -->
+            <label>Minimum Rating:</label>
+            <input type="number" name="minRating"
+                   th:value="${minRating != null ? minRating : ''}"
+                   step="0.1" min="0" max="5" placeholder="0.0">
+            <br />
+
+            <button type="submit">Apply Filter</button>
+            <button type="reset">Clear</button>
+            <a href="/books">
+                <button type="button">Reset All Filters</button>
+            </a>
+        </form>
+    </div>
+
+    <!-- Book List and Reservation Form -->
+    <form action="/bookReservation" method="POST">
+        <h2>Books:</h2>
+
+        <div th:each="book : ${books}">
+            <div class="book-entry">
+                <input type="radio" class="book-option" name="bookTitle" th:value="${book.getTitle()}"
+                       th:text="'Title: ' + ${book.getTitle()} + ', Genre: ' + ${book.getGenreName()} + ', Rating: ' + ${book.getAverageRating()} + ', Author: ' + ${book.getAuthorName()}" required/>
+
+                <button type="submit" name="edit" th:formaction="@{'/books/book-form/' + ${book.getId()}}" formmethod="get" formnovalidate>
+                    Edit
+                </button>
+
+                <button type="submit" name="delete" th:formaction="@{'/books/delete/' + ${book.getId()}}" formmethod="post" formnovalidate>
+                    Delete
+                </button>
+            </div>
+        </div>
+
+        <button type="submit" name="addBook" formaction="/books/book-form" formmethod="get" formnovalidate>
+            Add Book
+        </button>
+
+        <h2>Enter your information:</h2>
+        <label>Your Name:</label>
+        <input type="text" name="readerName" required><br/>
+        <label>Your Address:</label>
+        <input type="text" name="readerAddress" required><br/>
+
+        <h2>Choose number of copies:</h2>
+        <input type="number" name="numCopies" min="1" max="10" required><br/>
+        <br/>
+        <input type="submit" value="Reserve Book">
+    </form>
+</main>
+</body>
+</html>
